@@ -22,7 +22,7 @@ koa2也是自己参照大佬的Java项目做的，其中很多Java的包都没�
 
 # 前端
 
-**核心框架：**vue3+vue-router4+vuex4
+**核心框架：** vue3+vue-router4+vuex4
 
 JS 依赖及参考的 css：[axios](https://github.com/axios/axios)、[moment](https://github.com/moment/moment)、[nprogress](https://github.com/rstacruz/nprogress)、[v-viewer](https://github.com/fengyuanchen/viewerjs)、[prismjs](https://github.com/PrismJS/prism)、[APlayer](https://github.com/DIYgod/APlayer)、[MetingJS](https://github.com/metowolf/MetingJS)、[lodash](https://github.com/lodash/lodash)、[mavonEditor](https://github.com/hinesboy/mavonEditor)、[echarts](https://github.com/apache/echarts)、[tocbot](https://github.com/tscanlin/tocbot)、[iCSS](https://github.com/chokcoco/iCSS)
 
@@ -47,5 +47,5 @@ JS 依赖及参考的 css：[axios](https://github.com/axios/axios)、[moment](h
 # 注意事项
 
 - MySQL 确保数据库字符集为`utf8mb4`（”站点设置“及”文章详情“等许多表字段需要`utf8mb4`格式字符集来支持 emoji 表情，否则在导入 sql 文件时，即使成功导入，也会有部分字段内容不完整，导致前端页面渲染数据时报错）
-
 - 如需部署，注意将`/blog-view/src/utils/request.ts`和`/blog-backed/src/util/request.js`中的`baseUrl`修改为你的后端 API 地址
+- `blog-api`配置文件在根目录下的`.env`，根据自己数据库来配置就好
