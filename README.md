@@ -1,3 +1,15 @@
+<p align="center">
+	<a href="https://naccl.top/" target="_blank">
+		<img src="./image/favicon.ico" alt="NBlog logo" style="width: 200px; height: 200px">
+	</a>
+</p>
+<p align="center">
+	<img src="https://img.shields.io/badge/koa-2.13.4-brightgreen">
+	<img src="https://img.shields.io/badge/Vue-3.2.23-brightgreen">
+	<img src="https://img.shields.io/badge/license-MIT-blue">
+	<img src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FNaccl%2FNBlog&count_bg=%2344CC11&title_bg=%23555555&icon=notist.svg&icon_color=%231296DB&title=hits&edge_flat=false">
+</p>
+
 # 简介
 
 koa2 + vue3 博客系统
