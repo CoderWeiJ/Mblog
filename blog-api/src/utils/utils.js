@@ -8,6 +8,7 @@ function formatDate(date, fmt) {
 
 // 设置tags
 async function setTags(blogLIst) {
+  console.log('添加标签')
   for (let i = 0; i < blogLIst.length; i++) {
     blogLIst[i]['tags'] = await getTagListByBlogId(blogLIst[i].id)
   }

@@ -235,8 +235,8 @@ class BlogAdminController {
     const tags = [] // 新建一个tag对象数组
     for (let t of tagList) {
       if (typeof t === 'number') { // 选择了已存在的标签
-        const res = await getTagById(t);
-        tags.push(res)
+        const res = await getTagById(t)
+        tags.push(...res)
       } else if (typeof t === 'string') {
         // 查询标签是否存在
         const res = await getTagByName(t)
@@ -260,16 +260,18 @@ class BlogAdminController {
       blog['user_id'] = 1 // 博客默认只有一个作者
       const result = await saveBlog(blog) // 返回插入的博客
       // 关联博客和标签(维护 blog_tag 表)
-      for (let t of tags) await saveBlogTag(result['id'], t['id'])
+      for (let t of tags) {
+        saveBlogTag(result['id'], t['id'])
+      }
       return '添加成功'
     } else {
       blog['updatedAt'] = date
       await updateBlog(blog)
       // 关联博客和标签(维护blog_tag表)
       await deleteBlogTagByBlogId(blog['id'])
-      for (let t1 of tags) {
-        saveBlogTag(blog['id'], t1['id'])
-      }
+      tags.forEach(tag => {
+        saveBlogTag(blog['id'], tag['id'])
+      })
       return '更新成功'
     }
   }

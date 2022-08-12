@@ -6,7 +6,7 @@ const { MYSQL_DB, MYSQL_PORT, MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, REDIS_PASS
 const redisClient = redis.createClient({
   port: REDIS_PORT,
   host: REDIS_HOST,
-  // auth_pass: REDIS_PASSWORD
+  auth_pass: REDIS_PASSWORD
 })
 redisClient.on('connect', () => { console.log('redis连接成功') })
 redisClient.on('error', (error) => { console.log('redis连接异常: ', error) })

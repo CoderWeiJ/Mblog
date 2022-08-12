@@ -23,6 +23,7 @@ class BlogController {
     const { pageNum } = ctx.request.query
     try {
       const res = await blogService.getBlogInfoListByIsPublished(pageNum)
+      console.log(res)
       await setTags(res['blogList'])
       return ctx.body = {
         success: true,

@@ -2,11 +2,8 @@ const { Op, QueryTypes } = require('sequelize') // 操作符
 const { mysqlClient } = require('../db/database')
 const Blog = require('../model/blog.model')
 const Category = require('../model/category.model')
-const Friend = require('../model/friend.model')
 const Moment = require('../model/moment.model')
-const SiteSetting = require('../model/site_setting.model')
 const { getRandomColor } = require('../utils/randomColor')
-const { setNumToBoolean } = require('../utils/utils')
 /**
  * @Description: Mysql相关操作
  * @Author: CoderWeiJ
@@ -95,7 +92,8 @@ class BlogDao {
     WHERE b.is_published=true
     ORDER BY b.is_top DESC, b.createdAt DESC
     ${limit}`, { type: QueryTypes.SELECT })
-    const totalPage = await getTotalPage(`SELECT COUNT(*) as rows FROM blog WHERE b.is_published=true`)
+    const totalPage = await getTotalPage(`SELECT COUNT(*) as rows FROM blog WHERE blog.is_published=true`)
+    console.log('查询结果：', blogList, totalPage)
     return { blogList, totalPage }
   }
 
@@ -110,7 +108,7 @@ class BlogDao {
     WHERE c.category_name='${categoryName}' and b.is_published=true
     ORDER BY b.is_top DESC, b.createdAt DESC
     ${limit}`, { type: QueryTypes.SELECT })
-    const totalPage = getTotalPage(`SELECT COUNT(*) as rows FROM category as c LEFT JOIN blog as b on b.category_id=c.id WHERE c.category_name='${categoryName}' and b.is_published=true`)
+    const totalPage = await getTotalPage(`SELECT COUNT(*) as rows FROM category as c LEFT JOIN blog as b on b.category_id=c.id WHERE c.category_name='${categoryName}' and b.is_published=true`)
     return { blogList, totalPage }
   }
 
@@ -120,7 +118,7 @@ class BlogDao {
     const blogList = await mysqlClient.query(`select b.id, b.title, b.description, b.is_top, b.createdAt, b.views, b.words, b.read_time, b.password, c.category_name
     from (((tag as t left join blog_tag as bt on t.id=bt.tag_id) left join blog as b on bt.blog_id=b.id) left join category as c on b.category_id=c.id)
     where t.tag_name='${tagName}' and b.is_published=true order by is_top DESC, createdAt DESC ${limit}`, { type: QueryTypes.SELECT })
-    const totalPage = getTotalPage(`select COUNT(*) as rows
+    const totalPage = await getTotalPage(`select COUNT(*) as rows
     from (((tag as t left join blog_tag as bt on t.id=bt.tag_id) left join blog as b on bt.blog_id=b.id) left join category as c on b.category_id=c.id)
     where t.tag_name='${tagName}' and b.is_published=true`)
     return { blogList, totalPage }
@@ -363,7 +361,8 @@ class SiteDao {
 
   // 删除
   deleteSiteSettingById = async (id) => {
-    const res = await SiteSetting.destroy({ where: { id } })
+    const res = await mysqlClient.query(`DELETE FROM site_setting WHERE id=${id}`, { type: QueryTypes.DELETE })
+    return res[1]
   }
 
   // 添加
@@ -374,16 +373,14 @@ class SiteDao {
 
   // 更新
   updateSiteSetting = async ({ value, id }) => {
-    await SiteSetting.update({
-      value,
-    }, { where: { id } })
+    const res = await mysqlClient.query(`UPDATE site_setting SET value='${value}' WHERE id=${id}`, { type: QueryTypes.UPDATE })
+    return res[1]
   }
 
   // 更新友链页面content
-  updateFriendInfoContent = async (content) => {
-    const res = await SiteSetting.update({
-      value: content,
-    }, {where: {name_en: 'friendContent'}})   
+  updateFriendInfoContent = async ({ content }) => {
+    const res = await mysqlClient.query(`UPDATE site_setting SET value='${content}' WHERE name_en='friendContent'`, { type: QueryTypes.UPDATE })
+    return res[1]
   }
 
   // 更新友链页面commentEnabled
@@ -541,13 +538,8 @@ class FriendDao {
 
 
   // 查询友链List
-  getFriendList = async (pageNum, pageSize) => {
-    const limit = getLimit(pageNum, pageSize)
-    const sql = `SELECT COUNT(*) as rows FROM friend`
-    const total = await getTotalPage(sql)
-    const friendList = await mysqlClient.query(`SELECT id, nickname, description, website, avatar, is_published, views, createdAt FROM friend ${limit}`, { type: QueryTypes.SELECT })
-    setNumToBoolean(friendList, 'list', ['is_published'])
-    return { friendList, total }
+  getFriendList = async () => {
+    return await mysqlClient.query(`SELECT id, nickname, description, website, avatar, is_published, views, createdAt FROM friend`, { type: QueryTypes.SELECT })
   }
 
   // 查询友链VO List
@@ -556,18 +548,23 @@ class FriendDao {
   }
 
   // 更新友链更新状态
-  updateFriendPublishedById = async ({ id, is_published }) => {
-    await Friend.update({ is_published }, { where: { id } })
+  updateFriendPublishedById = async (friendId, published) => {
+    const res = await mysqlClient.query(`update friend set is_published=${published} where id=${friendId}`, { type: QueryTypes.UPDATE })
+    return res[1]
   }
 
   // 添加友链
-  saveFriend = async ({ nickname, description, website, avatar, is_published, views, createdAt }) => {
-    await Friend.create({ nickname, description, website, avatar, is_published, views, createdAt })
+  saveFriend = async ({ nickname, description, website, avatar, published, views, createdAt }) => {
+    const res = await mysqlClient.query(`INSERT INTO friend (nickname, description, website, avatar, is_published, views, createdAt)
+    values ('${nickname}', '${description}', '${website}', '${avatar}', ${published}, ${views}, ${createdAt})`, { type: QueryTypes.INSERT })
+    return res[1]
   }
 
   // 更新友链
-  updateFriend = async ({ id, nickname, description, website, avatar, is_published }) => {
-    await Friend.update({ nickname, description, website, avatar, is_published }, { where: { id } })
+  updateFriend = async ({ nickname, description, website, avatar, published }) => {
+    const res = await mysqlClient.query(`UPDATE friend SET nickname=${nickname}, description=${description}, website=${website}, avatar=${avatar}, is_published=${published}
+    where id=#{id}`, { type: QueryTypes.UPDATE })
+    return res[1]
   }
 
   // 按id删除友链
@@ -615,6 +612,7 @@ class MomentDao {
      FROM moment
      ORDER BY createdAt DESC
      ${limit}`, { type: QueryTypes.SELECT })
+    console.log('查询动态List：', moments, total)
     return {
       moments,
       total

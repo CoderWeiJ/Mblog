@@ -1,4 +1,5 @@
 const { getBlogInfoListByCategoryNameAndIsPublished } = require('../service/blog.service')
+const { setTags } = require('../utils/utils')
 /**
  * @Description: 分类
  * @Author: CoderWeiJ
@@ -19,6 +20,7 @@ class CategoryController {
     const { categoryName, pageNum = 1 } = ctx.request.query
     try {
       const res = await getBlogInfoListByCategoryNameAndIsPublished(categoryName, pageNum)
+      await setTags(res['blogList'])
       ctx.body = {
         success: true,
         message: '数据获取成功',
